@@ -1,0 +1,67 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  creationTimestamp: null
+  labels:
+    app: website-deployment
+  name: website-deployment
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: website-deployment
+  strategy: {}
+  template:
+    metadata:
+      creationTimestamp: null
+      labels:
+        app: website-deployment
+    spec:
+      containers:
+      - image: masihtech/ecom-web:v5
+        resources:
+          requests:
+            cpu: "100m"
+          limits:
+            cpu: "200m"
+        ports:
+        - containerPort: 80
+        env:
+        # Define the environment variable
+        - name: FEATURE_DARK_MODE
+          valueFrom:
+            configMapKeyRef:
+              # The ConfigMap containing the value you want to assign to SPECIAL_LEVEL_KEY
+              name: feature-toggle-config
+              # Specify the key associated with the value
+              key: FEATURE_DARK_MODE
+        - name: DB_HOST
+          valueFrom:
+            configMapKeyRef:
+              # The ConfigMap containing the value you want to assign to SPECIAL_LEVEL_KEY
+              name: dbconfig
+              # Specify the key associated with the value
+              key: DB_HOST
+        - name: DB_USER
+          valueFrom:
+            configMapKeyRef:
+              # The ConfigMap containing the value you want to assign to SPECIAL_LEVEL_KEY
+              name: dbconfig
+              # Specify the key associated with the value
+              key: MARIADB_USER
+        - name: DB_PASSWORD
+          valueFrom:
+            configMapKeyRef:
+              # The ConfigMap containing the value you want to assign to SPECIAL_LEVEL_KEY
+              name: dbconfig
+              # Specify the key associated with the value
+              key: MARIADB_PASSWORD
+        - name: DB_NAME
+          valueFrom:
+            configMapKeyRef:
+              # The ConfigMap containing the value you want to assign to SPECIAL_LEVEL_KEY
+              name: dbconfig
+              # Specify the key associated with the value
+              key: MARIADB_DATABASE
+        name: ecom-web
+status: {}
