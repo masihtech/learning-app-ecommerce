@@ -2,18 +2,38 @@
 
 This is a sample e-commerce application built for learning purposes.
 
-Here's how to deploy it on CentOS systems:
+The readme will cover below items:
 
-## Deploy Pre-Requisites
+1. create AKS Cluster with in free-tiered 
+2. configure your local kubectl client to connect and work with that cluster 
+3. containerize the PHP web application and deploying it
+4. create loadbalancer and expose the application to public internet
+5. containerize the MariaDB and create the application database and insert required data for the applcation to work
+6. scalling and test scalling  
+    
 
-1. Install FirewallD
+## create AKS Cluster with in free-tiered
+
+1. create Azure account
+2. 
 
 ```
-sudo yum install -y firewalld
-sudo systemctl start firewalld
-sudo systemctl enable firewalld
-sudo systemctl status firewalld
+
 ```
+## configure your local kubectl client to connect and work with that cluster 
+
+
+## containerize the PHP web application and deploying it
+## create loadbalancer and expose the application to public internet
+## containerize the MariaDB and create the application database and insert required data for the applcation to work
+## Implement Configuration Management
+## scalling and test scalling  
+## Perform a Rolling Update
+## Roll Back a Deployment
+## Autoscale Your Application , creating HPA  , generate esting traffic using Apache Bench
+## Implement Liveness and Readiness Probes
+## Utilize ConfigMaps and Secrets
+
 
 ## Deploy and Configure Database
 
