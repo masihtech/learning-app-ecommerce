@@ -15,13 +15,13 @@ The readme will cover below items:
 ## create AKS Cluster with in free-tiered
 
 1. create Azure account
-2. 
+2. click on Kubernetes services 
+3. create a cluster in East-US 2 region
 
-```
-
-```
 ## configure your local kubectl client to connect and work with that cluster 
-
+```
+$ az aks get-credentials --resource-group <resource-group-name> --name <aks-cluster-name> --file ~/.kube/config
+```
 
 ## containerize the PHP web application and deploying it
 ## create loadbalancer and expose the application to public internet
