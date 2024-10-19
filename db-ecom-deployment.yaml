@@ -1,0 +1,24 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  creationTimestamp: null
+  labels:
+    app: db-ecom-deployment
+  name: db-ecom-deployment
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: db-ecom-deployment
+  strategy: {}
+  template:
+    metadata:
+      creationTimestamp: null
+      labels:
+        app: db-ecom-deployment
+    spec:
+      containers:
+      - image: docker.io/masihtech/ecom-db:v2
+        name: ecom-db
+        resources: {}
+status: {}
