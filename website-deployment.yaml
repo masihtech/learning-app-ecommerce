@@ -17,24 +17,11 @@ spec:
       labels:
         app: website-deployment
     spec:
-      containers:
-      - image: masihtech/ecom-web:v5
-        resources:
-          requests:
-            cpu: "100m"
-          limits:
-            cpu: "200m"
-        ports:
-        - containerPort: 80
+      containers:      
+      - image: masihtech/ecom-web:v6
+        name: ecom-web
         env:
         # Define the environment variable
-        - name: FEATURE_DARK_MODE
-          valueFrom:
-            configMapKeyRef:
-              # The ConfigMap containing the value you want to assign to SPECIAL_LEVEL_KEY
-              name: feature-toggle-config
-              # Specify the key associated with the value
-              key: FEATURE_DARK_MODE
         - name: DB_HOST
           valueFrom:
             configMapKeyRef:
@@ -48,20 +35,20 @@ spec:
               # The ConfigMap containing the value you want to assign to SPECIAL_LEVEL_KEY
               name: dbconfig
               # Specify the key associated with the value
-              key: MARIADB_USER
+              key: DB_USER
         - name: DB_PASSWORD
           valueFrom:
             configMapKeyRef:
               # The ConfigMap containing the value you want to assign to SPECIAL_LEVEL_KEY
               name: dbconfig
               # Specify the key associated with the value
-              key: MARIADB_PASSWORD
+              key: DB_PASSWORD
         - name: DB_NAME
           valueFrom:
             configMapKeyRef:
               # The ConfigMap containing the value you want to assign to SPECIAL_LEVEL_KEY
               name: dbconfig
               # Specify the key associated with the value
-              key: MARIADB_DATABASE
-        name: ecom-web
+              key: DB_NAME
+        resources: {}
 status: {}
