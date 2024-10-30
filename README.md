@@ -1,5 +1,5 @@
 # Containerizing a PHP App with MySQL and Deploying on Kubernetes: A Step-by-Step Guide 
-Vidoe Tutorial is available at this link : [this link](https://youtu.be/oCnE_KVu6Q0?si=bAo-B0mltNO7ThX_)
+Vidoe Tutorial is available at this link : [this link](https://youtube.com/playlist?list=PLDAHgWeNeGc7FlRAl93vMzRHtmVL3UuI9&si=DRofWQ_SzO8qkJZT)
 
 In this blog post, we will walk through the process of containerizing a PHP application with a MySQL database and deploying it on Kubernetes. This guide assumes you have a basic understanding of Docker and Kubernetes.
 
