@@ -1,179 +1,180 @@
-# Introduction
+# Containerizing a PHP App with MySQL and Deploying on Kubernetes: A Step-by-Step Guide 
+Vidoe Tutorial is available at this link : [this link](https://youtu.be/oCnE_KVu6Q0?si=bAo-B0mltNO7ThX_)
 
-This is a sample e-commerce application built for learning purposes.
+In this blog post, we will walk through the process of containerizing a PHP application with a MySQL database and deploying it on Kubernetes. This guide assumes you have a basic understanding of Docker and Kubernetes.
 
-Here's how to deploy it on CentOS systems:
+## 1. Project Overview
 
-## Deploy Pre-Requisites
+Our goal is to deploy a PHP application that interacts with a MySQL database on a Kubernetes cluster. We will start by reviewing the project files and the structure. A README file is provided for deploying on CentOS, but we will customize it for Kubernetes.
 
-1. Install FirewallD
+## 2. Initial Setup
 
-```
-sudo yum install -y firewalld
-sudo systemctl start firewalld
-sudo systemctl enable firewalld
-sudo systemctl status firewalld
-```
+Before diving into the containerization process, we need to set up our Kubernetes cluster and configure `kubectl` to interact with it efficiently.
 
-## Deploy and Configure Database
+1. **Create a Kubernetes Cluster**: Follow the instructions for setting up a cluster (reference the appropriate cloud provider documentation).
+2. **Configure kubectl**: Alias `kubectl` to `k` for convenience. Use the following command:
+   ```bash
+   alias k=kubectl
+   ```
 
-1. Install MariaDB
+3. **Check Cluster Connection**: Ensure that your `kubectl` is connected to the cluster by running:
+   ```bash
+   k api-versions
+   ```
 
-```
-sudo yum install -y mariadb-server
-sudo vi /etc/my.cnf
-sudo systemctl start mariadb
-sudo systemctl enable mariadb
-```
+## 3. Creating the Dockerfile
 
-2. Configure firewall for Database
+The next step involves creating a Dockerfile to containerize the PHP application. The Dockerfile should use PHP 7.4 with Apache and include the MySQL extensions.
 
-```
-sudo firewall-cmd --permanent --zone=public --add-port=3306/tcp
-sudo firewall-cmd --reload
-```
+**Dockerfile (Dockerfile)**:
+```dockerfile
+# Use PHP 7.4 with Apache as the base image
+FROM php:7.4-apache
 
-3. Configure Database
+# Install MySQL extension
+RUN docker-php-ext-install mysqli
 
-```
-$ mysql
-MariaDB > CREATE DATABASE ecomdb;
-MariaDB > CREATE USER 'ecomuser'@'localhost' IDENTIFIED BY 'ecompassword';
-MariaDB > GRANT ALL PRIVILEGES ON *.* TO 'ecomuser'@'localhost';
-MariaDB > FLUSH PRIVILEGES;
+# Copy application source code
+COPY . /var/www/html
+
+# Expose port 80
+EXPOSE 80
 ```
 
-> ON a multi-node setup remember to provide the IP address of the web server here: `'ecomuser'@'web-server-ip'`
+Make sure to update the database connection strings in your application to point to the Kubernetes MySQL service.
 
-4. Load Product Inventory Information to database
+## 4. Building and Pushing the Docker Image
 
-Create the db-load-script.sql
+With the Dockerfile in place, it's time to build the Docker image and push it to Docker Hub. Follow these steps:
 
-```
-cat > db-load-script.sql <<-EOF
-USE ecomdb;
-CREATE TABLE products (id mediumint(8) unsigned NOT NULL auto_increment,Name varchar(255) default NULL,Price varchar(255) default NULL, ImageUrl varchar(255) default NULL,PRIMARY KEY (id)) AUTO_INCREMENT=1;
+1. **Build the Docker Image**:
+   ```bash
+   docker build -t yourusername/ecommweb:v6 .
+   ```
 
-INSERT INTO products (Name,Price,ImageUrl) VALUES ("Laptop","100","c-1.png"),("Drone","200","c-2.png"),("VR","300","c-3.png"),("Tablet","50","c-5.png"),("Watch","90","c-6.png"),("Phone Covers","20","c-7.png"),("Phone","80","c-8.png"),("Laptop","150","c-4.png");
+2. **Push the Image to Docker Hub**:
+   ```bash
+   docker push yourusername/ecommweb:v6
+   ```
 
-EOF
-```
+This will allow Kubernetes to access the image for deployment.
 
-Run sql script
+## 5. Creating Kubernetes Deployment
 
-```
+Next, we will create a YAML file to define the deployment of our application in Kubernetes.
 
-sudo mysql < db-load-script.sql
-```
-
-
-## Deploy and Configure Web
-
-1. Install required packages
-
-```
-sudo yum install -y httpd php php-mysqlnd
-sudo firewall-cmd --permanent --zone=public --add-port=80/tcp
-sudo firewall-cmd --reload
-```
-
-2. Configure httpd
-
-Change `DirectoryIndex index.html` to `DirectoryIndex index.php` to make the php page the default page
-
-```
-sudo sed -i 's/index.html/index.php/g' /etc/httpd/conf/httpd.conf
-```
-
-3. Start httpd
-
-```
-sudo systemctl start httpd
-sudo systemctl enable httpd
+**Deployment YAML (website-deployment.yaml)**:
+```yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ecommweb
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: ecommweb
+  template:
+    metadata:
+      labels:
+        app: ecommweb
+    spec:
+      containers:
+      - name: ecommweb
+        image: yourusername/ecommweb:v6
+        ports:
+        - containerPort: 80
 ```
 
-4. Download code
-
-```
-sudo yum install -y git
-sudo git clone https://github.com/kodekloudhub/learning-app-ecommerce.git /var/www/html/
+Deploy the application with:
+```bash
+kubectl apply -f website-deployment.yaml
 ```
 
-<!-- 5. Update index.php
+## 6. Setting Up the Database
 
-Update [index.php](https://github.com/kodekloudhub/learning-app-ecommerce/blob/13b6e9ddc867eff30368c7e4f013164a85e2dccb/index.php#L107) file to connect to the right database server. In this case `localhost` since the database is on the same server.
+Instead of creating a custom database image, we will use the official MariaDB image to set up our database.
 
+1. **Pull the MariaDB Image**:
+   ```bash
+   docker pull mariadb
+   ```
+
+2. **Create the Database Initialization Script**: You can create a script to initialize the database, then include it in a Dockerfile.
+
+**Database Dockerfile (database/Dockerfile)**:
+```dockerfile
+FROM mariadb
+ENV MYSQL_DATABASE=yourdatabase
+ENV MYSQL_ROOT_PASSWORD=yourpassword
 ```
-sudo sed -i 's/172.20.1.101/localhost/g' /var/www/html/index.php
 
-              <?php
-                        $link = mysqli_connect('172.20.1.101', 'ecomuser', 'ecompassword', 'ecomdb');
-                        if ($link) {
-                        $res = mysqli_query($link, "select * from products;");
-                        while ($row = mysqli_fetch_assoc($res)) { ?>
+3. **Build and Push the Database Image**:
+   ```bash
+   docker build -t yourusername/mariadb .
+   docker push yourusername/mariadb
+   ```
+
+4. **Create a Database Deployment**:
+**Database Deployment YAML (database-deployment.yaml)**:
+```yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: mariadb
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: mariadb
+  template:
+    metadata:
+      labels:
+        app: mariadb
+    spec:
+      containers:
+      - name: mariadb
+        image: yourusername/mariadb
+        env:
+        - name: MYSQL_DATABASE
+          value: yourdatabase
+        - name: MYSQL_ROOT_PASSWORD
+          value: yourpassword
 ```
 
-> ON a multi-node setup remember to provide the IP address of the database server here.
+Deploy the database:
+```bash
+kubectl apply -f database-deployment.yaml
 ```
-sudo sed -i 's/172.20.1.101/localhost/g' /var/www/html/index.php
+
+## 7. Configuring Kubernetes Services
+
+To expose your application and database within the Kubernetes cluster, you need to create services.
+
+**Service YAML (website-service.yaml)**:
+```yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: ecommweb
+spec:
+  type: LoadBalancer
+  ports:
+  - port: 80
+  selector:
+    app: ecommweb
 ```
--->
 
-5. Create and Configure the `.env` File
-
-   Create an `.env` file in the root of your project folder.
-
-   ```sh
-   cat > /var/www/html/.env <<-EOF
-   DB_HOST=localhost
-   DB_USER=ecomuser
-   DB_PASSWORD=ecompassword
-   DB_NAME=ecomdb
-   EOF
-
-6. Update `index.php`
-
-   Update the `index.php` file to load the environment variables from the `.env` file and use them to connect to the database.
-
-   ```php
-   <?php
-   // Function to load environment variables from a .env file
-   function loadEnv($path)
-   {
-       if (!file_exists($path)) {
-           return false;
-       }
-
-       $lines = file($path, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
-       foreach ($lines as $line) {
-           if (strpos(trim($line), '#') === 0) {
-               continue;
-           }
-
-           list($name, $value) = explode('=', $line, 2);
-           $name = trim($name);
-           $value = trim($value);
-           putenv(sprintf('%s=%s', $name, $value));
-       }
-       return true;
-   }
-
-   // Load environment variables from .env file
-   loadEnv(__DIR__ . '/.env');
-
-   // Retrieve the database connection details from environment variables
-   $dbHost = getenv('DB_HOST');
-   $dbUser = getenv('DB_USER');
-   $dbPassword = getenv('DB_PASSWORD');
-   $dbName = getenv('DB_NAME');
-
-   ?>
-
-   ON a multi-node setup, remember to provide the IP address of the database server in the .env file.
-
-
-7. Test
-
+Deploy the service:
+```bash
+kubectl apply -f website-service.yaml
 ```
-curl http://localhost
-```
+
+## 8. Troubleshooting Database Connections
+
+If you encounter issues connecting the PHP application to the MySQL database, ensure that:
+
+- The database service name is correctly referenced in your application.
+- The environment variables are set properly in your deployment YAML.
+
+
