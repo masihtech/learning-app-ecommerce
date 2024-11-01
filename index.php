@@ -5,7 +5,7 @@
         <meta http-equiv="X-UA-Compatible" content="IE=edge">
         <meta name="viewport" content="width=device-width, initial-scale=1">
 
-        <title>Kodekloud E-Commerce</title>
+        <title><?php echo getenv('PAGE_TITLE') ?: 'Kodekloud E-Commerce'; ?></title>
 
         <!-- Favicon -->
         <link rel="icon" href="img/favicon.png" type="image/png" />
@@ -89,9 +89,9 @@
         <section class="slider_area row m0">
             <div class="slider_inner">
                 <div class="camera_caption">
-                    <h2 class="wow fadeInUp animated">BUY TWO , GET THREE</h2>
-                    <h5 class="wow fadeIn animated" data-wow-delay="0.3s">EVERYTHING ON SALE</h5>
-                    <a class="learn_mor wow fadeInU" data-wow-delay="0.6s" href="#product-list">Show Now!</a>
+                    <h2 class="wow fadeInUp animated"><?php echo getenv('SLIDER_TITLE') ?: 'BUY TWO , GET THREE'; ?></h2>
+                    <h5 class="wow fadeIn animated" data-wow-delay="0.3s"><?php echo getenv('SLIDER_SUBTITLE') ?: 'EVERYTHING ON SALE'; ?></h5>
+                    <a class="learn_mor wow fadeInU" data-wow-delay="0.6s" href="#product-list"><?php echo getenv('SLIDER_BUTTON_TEXT') ?: 'Show Now!'; ?></a>
                 </div>
             </div>
         </section>

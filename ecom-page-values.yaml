@@ -1,0 +1,9 @@
+apiVersion: v1
+data:
+  SLIDER_BUTTON_TEXT: BE CONSITENT AND TIRELESS
+  SLIDER_SUBTITLE: 'LEARN PUBLICLY '
+  SLIDER_TITLE: BUILD , LEARN
+kind: ConfigMap
+metadata:
+  creationTimestamp: null
+  name: ecom-page-values

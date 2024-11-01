@@ -1134,4 +1134,32 @@ ul {
 }
 /* ----------------------------- */
 
+/* Dark Theme - Only applied when feature flag is enabled */
+html[data-theme="dark"] {
+    /* Main colors */
+    background-color: #121212;
+    color: #ffffff;
+}
+
+html[data-theme="dark"] body {
+    background-color: #121212;
+    color: #ffffff;
+}
+
+html[data-theme="dark"] .navbar.navbar-default {
+    background-color: #1e1e1e !important; /* Added !important */
+}
+
+html[data-theme="dark"] .menu_bg {
+    background: #1e1e1e !important; /* Added for menu when scrolling */
+}
+
+html[data-theme="dark"] .menu_bg .main_nav li a {
+    color: #ffffff !important; /* Keep text visible on dark background */
+}
+
+html[data-theme="dark"] p {
+    color: #ffffff;
+}
+
 /*# sourceMappingURL=style.css.map */

@@ -21,7 +21,21 @@ spec:
       - image: masihtech/ecom-web:v6
         name: ecom-web
         env:
-        # Define the environment variable
+        - name: PAGE_TITLE
+          valueFrom:
+            configMapKeyRef:
+              name: ecom-page-values
+              key: SLIDER_TITLE
+        - name: SLIDER_SUBTITLE
+          valueFrom:
+            configMapKeyRef:
+              name: ecom-page-values
+              key: SLIDER_SUBTITLE    
+        - name: SLIDER_BUTTON_TEXT
+          valueFrom:
+            configMapKeyRef:
+              name: ecom-page-values
+              key: SLIDER_BUTTON_TEXT
         - name: DB_HOST
           valueFrom:
             configMapKeyRef:
